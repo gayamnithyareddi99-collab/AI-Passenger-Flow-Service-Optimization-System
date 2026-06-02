@@ -1,0 +1,1821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Passenger Flow & Service Optimization System | Predict. Optimise. Control.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Sora:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+
+:root{
+  /* AI Passenger Flow  Deep Navy / Steel Blue / Cyan Accent */
+  --blue:#0B2E5A;
+  --blue-light:#1A4A8A;
+  --blue-dim:#0D3570;
+  --blue-dark:#071E3D;
+  --blue-deeper:#040F20;
+
+  --accent:#00B4D8;
+  --accent-light:#90E0EF;
+  --accent-dim:#0096C7;
+
+  --nav-bg:#0B2E5A;
+  --footer-bg:#071E3D;
+
+  --bg-white:#F4F8FF;
+  --bg-light:#EAF1FB;
+  --bg-section:#D6E8FA;
+  --bg-card:#F4F8FF;
+
+  --card-border:rgba(11,46,90,0.18);
+  --card-border-strong:rgba(11,46,90,0.38);
+
+  --text-dark:#071E3D;
+  --text-mid:#1A3A5C;
+  --text-muted:#4A6A8A;
+  --text-light:#7A9AAA;
+  --white:#FFFFFF;
+
+  --nav-h:72px;
+  --max-w:1200px;
+  --font:'Plus Jakarta Sans',sans-serif;
+  --display:'Sora',sans-serif;
+  --mono:'IBM Plex Mono',monospace;
+  --ease:cubic-bezier(0.4,0,0.2,1);
+  --ease-out:cubic-bezier(0,0,0.2,1);
+}
+
+body{font-family:var(--font);color:var(--text-dark);background:var(--bg-white);overflow-x:hidden;}
+
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:var(--bg-light);}
+::-webkit-scrollbar-thumb{background:var(--blue);border-radius:2px;}
+
+img{display:block;max-width:100%;}
+
+/* ─── NAVBAR ─────────────────────────────────────────── */
+.navbar{
+  position:fixed;top:0;left:0;width:100%;height:var(--nav-h);
+  background:var(--nav-bg);backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(255,255,255,0.15);
+  z-index:1000;display:flex;align-items:center;
+  padding:0 clamp(16px,5vw,60px);
+  justify-content:space-between;
+  transition:border-color 0.3s;
+  box-shadow:0 2px 24px rgba(7,30,61,0.4);
+}
+.nav-logo{
+  font-family:var(--display);font-size:17px;font-weight:800;
+  color:var(--white);letter-spacing:-0.3px;
+  display:flex;align-items:center;gap:12px;
+  cursor:pointer;text-decoration:none;flex-shrink:0;
+}
+.nav-logo-icon{
+  width:40px;height:40px;
+  background:rgba(0,180,216,0.25);
+  border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+  box-shadow:0 4px 14px rgba(0,0,0,0.2);
+  border:1px solid rgba(0,180,216,0.4);
+}
+.nav-logo-icon svg{width:22px;height:22px;fill:none;stroke:#00B4D8;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.nav-logo-text{display:flex;flex-direction:column;line-height:1;}
+.nav-logo-text span{font-size:10px;font-family:var(--mono);font-weight:500;color:rgba(255,255,255,0.65);letter-spacing:2px;text-transform:uppercase;margin-top:3px;}
+
+.nav-links{display:flex;align-items:center;gap:4px;list-style:none;}
+.nav-links li button{
+  background:none;border:none;
+  color:rgba(255,255,255,0.85);
+  font-size:11px;font-weight:600;
+  padding:8px 14px;border-radius:7px;
+  transition:all 0.22s var(--ease);
+  cursor:pointer;font-family:var(--mono);
+  letter-spacing:0.8px;text-transform:uppercase;
+  position:relative;white-space:nowrap;
+}
+.nav-links li button:hover{color:#fff;background:rgba(255,255,255,0.12);}
+.nav-links li button.active{color:#fff;background:rgba(0,180,216,0.2);}
+.nav-links li button.active::after{
+  content:'';position:absolute;bottom:5px;left:50%;
+  transform:translateX(-50%);width:14px;height:2px;
+  background:var(--accent);border-radius:2px;
+}
+
+.nav-right{display:flex;align-items:center;gap:10px;}
+.btn-demo-nav{
+  background:var(--accent);
+  color:var(--blue-deeper);border:none;padding:9px 20px;border-radius:8px;
+  font-size:11px;font-weight:700;cursor:pointer;
+  transition:all 0.22s;font-family:var(--mono);
+  letter-spacing:0.8px;text-transform:uppercase;white-space:nowrap;
+  box-shadow:0 2px 10px rgba(0,180,216,0.4);
+}
+.btn-demo-nav:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,180,216,0.5);background:var(--accent-light);}
+
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:6px;background:none;border:none;flex-shrink:0;}
+.hamburger span{width:22px;height:2px;background:#fff;border-radius:2px;transition:0.3s;display:block;}
+.hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.hamburger.open span:nth-child(2){opacity:0;}
+.hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+
+.mobile-nav{
+  display:none;position:fixed;top:var(--nav-h);left:0;width:100%;
+  background:var(--blue-dark);backdrop-filter:blur(20px);
+  padding:12px 20px 20px;flex-direction:column;gap:2px;
+  z-index:999;border-bottom:1px solid rgba(255,255,255,0.1);
+  animation:slideDown 0.25s var(--ease-out);
+}
+@keyframes slideDown{from{opacity:0;transform:translateY(-10px);}to{opacity:1;transform:translateY(0);}}
+.mobile-nav.open{display:flex;}
+.mobile-nav button{
+  background:none;border:none;color:rgba(255,255,255,0.8);
+  font-size:13px;font-weight:600;padding:13px 12px;
+  border-bottom:1px solid rgba(255,255,255,0.08);
+  cursor:pointer;font-family:var(--mono);text-align:left;
+  text-transform:uppercase;letter-spacing:1px;
+  transition:color 0.2s,background 0.2s;border-radius:6px;
+}
+.mobile-nav button:hover{color:#fff;background:rgba(255,255,255,0.08);}
+.mobile-nav .mob-cta{
+  margin-top:8px;background:var(--accent);
+  color:var(--blue-deeper);border:none;padding:13px;
+  border-radius:8px;font-weight:700;font-size:12px;
+  letter-spacing:1px;text-transform:uppercase;cursor:pointer;
+  font-family:var(--mono);
+}
+
+/* ─── PAGE SYSTEM ─────────────────────────────────────── */
+.page{display:none;min-height:100vh;padding-top:var(--nav-h);}
+.page.active{display:block;animation:pgIn 0.35s var(--ease);}
+@keyframes pgIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+/* ─── SECTION COMMONS ─────────────────────────────────── */
+.label-tag{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:var(--mono);font-size:10px;font-weight:600;
+  letter-spacing:3px;text-transform:uppercase;
+  color:var(--blue-dim);margin-bottom:14px;
+}
+.label-tag::before{content:'';width:20px;height:1px;background:var(--blue);}
+.label-tag-white{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:var(--mono);font-size:10px;font-weight:600;
+  letter-spacing:3px;text-transform:uppercase;
+  color:rgba(255,255,255,0.8);margin-bottom:14px;
+}
+.label-tag-white::before{content:'';width:20px;height:1px;background:rgba(0,180,216,0.8);}
+
+.section-h2{
+  font-family:var(--display);font-size:clamp(28px,3.5vw,52px);
+  font-weight:800;line-height:1.1;letter-spacing:-0.8px;
+  margin-bottom:10px;
+}
+.section-h2.blue-txt{color:var(--blue-dark);}
+.section-h2.dark{color:var(--text-dark);}
+.section-h2.white{color:var(--white);}
+
+.section-divider{width:56px;height:3px;margin:16px 0 28px;border-radius:2px;}
+.divider-blue{background:linear-gradient(90deg,var(--accent),transparent);}
+.divider-white{background:linear-gradient(90deg,rgba(0,180,216,0.9),transparent);}
+.divider-center{margin:16px auto 28px;}
+
+.para-dark{color:var(--text-mid);line-height:1.85;font-size:17px;}
+.para-light{color:rgba(255,255,255,0.85);line-height:1.85;font-size:17px;}
+
+.container{max-width:var(--max-w);margin:0 auto;padding:0 clamp(16px,4vw,60px);}
+
+/* ─── BUTTONS ─────────────────────────────────────────── */
+.btn-primary{
+  display:inline-flex;align-items:center;gap:8px;
+  background:linear-gradient(135deg,var(--blue),var(--blue-dark));
+  color:var(--white);padding:13px 28px;border-radius:8px;
+  text-decoration:none;font-weight:700;font-size:12px;
+  letter-spacing:0.8px;text-transform:uppercase;
+  transition:all 0.25s;font-family:var(--mono);border:none;cursor:pointer;
+  box-shadow:0 4px 16px rgba(11,46,90,0.4);
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(11,46,90,0.55);}
+
+.btn-secondary{
+  display:inline-flex;align-items:center;gap:8px;
+  border:1.5px solid var(--accent);color:var(--blue-dark);
+  padding:12px 28px;border-radius:8px;text-decoration:none;
+  font-weight:700;font-size:12px;letter-spacing:0.8px;
+  text-transform:uppercase;transition:all 0.25s;
+  font-family:var(--mono);background:none;cursor:pointer;
+}
+.btn-secondary:hover{background:rgba(0,180,216,0.1);border-color:var(--accent-dim);}
+
+.btn-white{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--white);color:var(--blue-dark);
+  padding:12px 28px;border-radius:8px;
+  font-weight:700;font-size:12px;letter-spacing:0.8px;
+  text-transform:uppercase;transition:all 0.25s;
+  font-family:var(--mono);border:none;cursor:pointer;
+  box-shadow:0 4px 16px rgba(0,0,0,0.12);
+}
+.btn-white:hover{transform:translateY(-2px);background:var(--accent-light);box-shadow:0 8px 28px rgba(0,0,0,0.2);}
+
+/* ─── STATUS BADGES ─────────────────────────────── */
+.risk-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:3px 10px;border-radius:20px;
+  font-size:10px;font-weight:700;font-family:var(--mono);letter-spacing:0.5px;
+}
+.risk-blue{background:rgba(11,46,90,0.1);color:var(--blue-dim);border:1px solid rgba(11,46,90,0.28);}
+.risk-light{background:rgba(144,224,239,0.3);color:var(--blue-dark);border:1px solid rgba(0,180,216,0.3);}
+.risk-green{background:rgba(16,185,129,0.1);color:#059669;border:1px solid rgba(16,185,129,0.25);}
+.risk-dot{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0;}
+
+/* ─── HERO ─────────────────────────────────────────────── */
+.hero{
+  background:linear-gradient(140deg,#EAF1FB 0%,#D6E8FA 40%,#B8D8F5 100%);
+  padding:clamp(60px,10vw,100px) 0 clamp(50px,8vw,80px);
+  position:relative;overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;top:-80px;right:-80px;
+  width:500px;height:500px;border-radius:50%;
+  background:radial-gradient(circle,rgba(0,180,216,0.15) 0%,transparent 70%);
+}
+.hero-inner{
+  max-width:var(--max-w);margin:0 auto;
+  padding:0 clamp(16px,4vw,60px);
+  display:grid;grid-template-columns:1fr 1fr;gap:clamp(40px,6vw,80px);
+  align-items:center;
+}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(11,46,90,0.12);border:1px solid rgba(0,180,216,0.4);
+  border-radius:30px;padding:6px 16px;
+  font-family:var(--mono);font-size:10px;font-weight:700;
+  color:var(--blue-dim);letter-spacing:1.5px;text-transform:uppercase;
+  margin-bottom:22px;
+}
+.hero-badge-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+h1{
+  font-family:var(--display);font-size:clamp(34px,5vw,64px);
+  font-weight:800;line-height:1.06;letter-spacing:-1.5px;color:var(--text-dark);
+  margin-bottom:6px;
+}
+h1 .blue{color:var(--blue);}
+h1 .dark-blue{color:var(--accent-dim);}
+.hero-rule{width:48px;height:3px;background:linear-gradient(90deg,var(--accent),var(--blue-light));border-radius:2px;margin:20px 0;}
+.hero-body{font-size:17px;color:var(--text-mid);line-height:1.8;margin-bottom:28px;max-width:540px;}
+.hero-btns{display:flex;gap:14px;flex-wrap:wrap;}
+
+.hero-mini-stats{display:flex;gap:14px;margin-top:34px;flex-wrap:wrap;}
+.hero-mini-card{
+  background:rgba(255,255,255,0.85);
+  border:1px solid rgba(0,180,216,0.25);
+  border-radius:12px;padding:14px 18px;min-width:140px;
+  backdrop-filter:blur(8px);
+}
+.hero-mini-card strong{
+  display:block;font-family:var(--display);
+  font-size:22px;font-weight:800;color:var(--blue-dark);
+}
+.hero-mini-card span{font-size:11px;color:var(--text-muted);font-family:var(--mono);}
+
+/* DASHBOARD CARD */
+.score-card{
+  background:#fff;border-radius:18px;
+  border:1px solid rgba(11,46,90,0.15);
+  padding:24px;box-shadow:0 8px 40px rgba(11,46,90,0.12);
+}
+.score-card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;}
+.score-card-label{font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px;}
+.dashboard-title{font-family:var(--display);font-size:17px;font-weight:700;color:var(--text-dark);}
+.live-dot-wrap{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:9px;font-weight:700;color:var(--accent);letter-spacing:1.5px;}
+.live-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);animation:pulse 1.5s infinite;}
+.score-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(11,46,90,0.08);}
+.score-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;font-weight:700;flex-shrink:0;}
+.score-icon.blue-bg{background:rgba(11,46,90,0.1);color:var(--blue-dim);}
+.score-icon.light-bg{background:rgba(0,180,216,0.12);color:var(--accent-dim);}
+.score-icon.green-bg{background:rgba(16,185,129,0.1);color:#059669;}
+.score-lbl{flex:1;font-size:12px;color:var(--text-muted);}
+.score-val{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--text-dark);}
+.score-big{display:flex;align-items:center;gap:16px;margin-top:18px;padding:16px;background:linear-gradient(135deg,rgba(11,46,90,0.07),rgba(0,180,216,0.1));border-radius:12px;border:1px solid rgba(0,180,216,0.2);}
+.score-big-num{font-family:var(--display);font-size:48px;font-weight:800;color:var(--blue);line-height:1;}
+.score-big-info .label{font-size:13px;font-weight:700;color:var(--text-dark);}
+.score-big-info .sub{font-size:11px;color:var(--text-muted);margin-top:3px;font-family:var(--mono);}
+
+/* ─── STATS STRIP ─────────────────────────────────────── */
+.section-blue{
+  background:linear-gradient(135deg,var(--blue-dark) 0%,var(--blue-deeper) 100%);
+  padding:clamp(60px,8vw,96px) 0;
+}
+.stats-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin-top:48px;
+}
+.stat-card{
+  background:rgba(255,255,255,0.08);border:1px solid rgba(0,180,216,0.2);
+  border-radius:16px;padding:clamp(20px,3vw,30px);
+  text-align:center;transition:transform 0.25s,border-color 0.25s;
+}
+.stat-card:hover{transform:translateY(-4px);border-color:rgba(0,180,216,0.45);}
+.stat-num{font-family:var(--display);font-size:clamp(32px,4vw,48px);font-weight:800;color:var(--accent);margin-bottom:10px;}
+.stat-lbl{font-size:13px;color:rgba(255,255,255,0.75);line-height:1.6;}
+
+/* ─── PLATFORM SECTION ─────────────────────────────────── */
+.platform-section{background:var(--bg-white);padding:clamp(60px,8vw,96px) 0;}
+.platform-sub{max-width:760px;margin-bottom:44px;color:var(--text-mid);}
+.platform-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;}
+.platform-card{
+  background:#fff;border:1px solid rgba(11,46,90,0.12);
+  border-radius:18px;overflow:hidden;
+  transition:border-color 0.3s,box-shadow 0.3s,transform 0.3s;
+  box-shadow:0 2px 12px rgba(11,46,90,0.06);
+}
+.platform-card:hover{border-color:rgba(0,180,216,0.45);box-shadow:0 12px 40px rgba(11,46,90,0.12);transform:translateY(-3px);}
+.platform-img-wrap{width:100%;height:180px;overflow:hidden;background:linear-gradient(135deg,var(--bg-light),var(--bg-section));}
+.platform-img-wrap img{width:100%;height:100%;object-fit:cover;}
+.platform-card .inner{padding:22px;}
+.element-badge{
+  display:inline-block;background:rgba(0,180,216,0.1);
+  color:var(--blue-dim);border-radius:6px;
+  padding:3px 10px;font-family:var(--mono);font-size:9px;
+  font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+  margin-bottom:12px;border:1px solid rgba(0,180,216,0.2);
+}
+.platform-card h3{font-family:var(--display);font-size:17px;font-weight:700;color:var(--text-dark);margin-bottom:10px;line-height:1.3;}
+.platform-card p{font-size:13px;color:var(--text-muted);line-height:1.75;}
+.more-text{display:none;font-size:13px;color:var(--text-muted);line-height:1.75;margin-top:10px;padding-top:10px;border-top:1px solid rgba(11,46,90,0.08);}
+.platform-card.open .more-text{display:block;}
+.expand-btn{
+  margin-top:16px;background:none;border:1px solid rgba(11,46,90,0.22);
+  color:var(--blue-dim);padding:7px 18px;border-radius:7px;
+  font-size:11px;font-weight:700;cursor:pointer;font-family:var(--mono);
+  letter-spacing:0.8px;text-transform:uppercase;transition:all 0.2s;
+}
+.expand-btn:hover{background:rgba(0,180,216,0.08);border-color:var(--accent);}
+
+/* ─── WHY SECTION ─────────────────────────────────────── */
+.why-section{background:var(--bg-light);padding:clamp(60px,8vw,96px) 0;}
+.why-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:44px;}
+.why-card{
+  background:#fff;border:1px solid rgba(11,46,90,0.12);
+  border-radius:16px;padding:clamp(20px,3vw,30px);
+  transition:border-color 0.25s,box-shadow 0.25s;
+}
+.why-card:hover{border-color:rgba(0,180,216,0.4);box-shadow:0 8px 28px rgba(11,46,90,0.1);}
+.why-icon{
+  width:48px;height:48px;border-radius:12px;
+  background:linear-gradient(135deg,rgba(11,46,90,0.1),rgba(0,180,216,0.12));
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:16px;font-size:20px;color:var(--accent);
+  border:1px solid rgba(0,180,216,0.2);
+}
+.why-card h4{font-family:var(--display);font-size:16px;font-weight:700;color:var(--text-dark);margin-bottom:10px;}
+.why-card p{font-size:13px;color:var(--text-muted);line-height:1.75;}
+
+/* ─── SECTION LIGHT / ALT ─────────────────────────────── */
+.section-light{background:var(--bg-white);padding:clamp(60px,8vw,96px) 0;}
+.section-alt{background:var(--bg-light);padding:clamp(60px,8vw,96px) 0;}
+
+/* ─── MARKET CHARTS ─────────────────────────────────────── */
+.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:44px;}
+.chart-card{
+  background:#fff;border:1px solid rgba(11,46,90,0.12);
+  border-radius:18px;padding:24px;
+  box-shadow:0 4px 16px rgba(11,46,90,0.06);
+}
+.chart-card h4{font-family:var(--display);font-size:15px;font-weight:700;color:var(--text-dark);margin-bottom:4px;}
+.chart-card p{font-size:12px;color:var(--text-muted);margin-bottom:20px;font-family:var(--mono);}
+.chart-wrap{height:260px;position:relative;}
+
+/* ─── ABOUT PAGE ─────────────────────────────────────────── */
+.about-hero{
+  background:linear-gradient(140deg,#D6E8FA 0%,#B8D8F5 60%,#90E0EF 100%);
+  padding:clamp(80px,12vw,120px) 0 clamp(60px,8vw,80px);
+  position:relative;overflow:hidden;
+}
+.about-hero::after{
+  content:'';position:absolute;bottom:-60px;left:-60px;
+  width:400px;height:400px;border-radius:50%;
+  background:radial-gradient(circle,rgba(11,46,90,0.12) 0%,transparent 70%);
+}
+.about-hero .container{position:relative;z-index:1;}
+.founders-grid{display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:44px;}
+.founder-card{
+  background:#fff;border:1px solid rgba(11,46,90,0.12);
+  border-radius:18px;padding:clamp(20px,3vw,36px);
+  box-shadow:0 4px 20px rgba(11,46,90,0.08);
+}
+.founder-img{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--blue-dark));display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:24px;font-weight:800;color:#fff;margin-bottom:16px;}
+.founder-card h3{font-family:var(--display);font-size:20px;font-weight:700;color:var(--text-dark);margin-bottom:4px;}
+.founder-card .role{font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--accent-dim);margin-bottom:14px;}
+.founder-card p{font-size:13px;color:var(--text-muted);line-height:1.8;}
+.founder-badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;}
+.f-badge{background:rgba(0,180,216,0.08);border:1px solid rgba(0,180,216,0.22);border-radius:20px;padding:4px 12px;font-family:var(--mono);font-size:10px;color:var(--blue-dim);letter-spacing:0.5px;}
+
+/* ─── FAQ ─────────────────────────────────────────────── */
+.faq-wrap{display:flex;flex-direction:column;gap:12px;margin-top:32px;}
+.faq-item{background:#fff;border:1px solid rgba(11,46,90,0.12);border-radius:14px;overflow:hidden;}
+.faq-q{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;cursor:pointer;gap:16px;}
+.faq-q h4{font-family:var(--display);font-size:15px;font-weight:600;color:var(--text-dark);}
+.faq-icon{font-size:20px;font-weight:300;color:var(--accent);flex-shrink:0;transition:transform 0.3s;}
+.faq-item.open .faq-icon{transform:rotate(45deg);}
+.faq-body{display:none;padding:0 22px 18px;font-size:14px;color:var(--text-muted);line-height:1.8;border-top:1px solid rgba(11,46,90,0.08);}
+.faq-item.open .faq-body{display:block;}
+
+/* ─── PRICING ─────────────────────────────────────────── */
+.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;margin-top:44px;}
+.price-card{
+  background:#fff;border:1px solid rgba(11,46,90,0.12);
+  border-radius:18px;padding:clamp(22px,3vw,36px);
+  position:relative;transition:border-color 0.25s,box-shadow 0.25s,transform 0.25s;
+  box-shadow:0 4px 16px rgba(11,46,90,0.06);
+}
+.price-card:hover{transform:translateY(-4px);box-shadow:0 16px 48px rgba(11,46,90,0.14);}
+.price-card.featured{
+  border:2px solid var(--accent);
+  box-shadow:0 8px 40px rgba(0,180,216,0.2);
+  transform:scale(1.03);
+}
+.price-card.featured:hover{transform:scale(1.03) translateY(-4px);}
+.featured-label{
+  position:absolute;top:-14px;left:50%;transform:translateX(-50%);
+  background:linear-gradient(135deg,var(--accent),var(--accent-dim));
+  color:#fff;padding:4px 18px;border-radius:20px;
+  font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+  white-space:nowrap;
+}
+.price-tier{font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--accent-dim);margin-bottom:8px;}
+.price-title{font-family:var(--display);font-size:20px;font-weight:700;color:var(--text-dark);margin-bottom:12px;}
+.price-amount{font-family:var(--display);font-size:clamp(34px,4vw,48px);font-weight:800;color:var(--blue-dark);line-height:1;}
+.price-amount span{font-size:16px;font-weight:500;color:var(--text-muted);}
+.price-desc{font-size:13px;color:var(--text-muted);margin:12px 0 20px;line-height:1.6;}
+.price-features{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:28px;}
+.price-features li{font-size:13px;color:var(--text-mid);display:flex;align-items:flex-start;gap:8px;}
+.price-features li::before{content:'✓';color:var(--accent);font-weight:700;flex-shrink:0;margin-top:1px;}
+
+/* ─── PROCESS ─────────────────────────────────────────── */
+.process-step{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:clamp(30px,5vw,72px);align-items:center;
+  margin-bottom:clamp(56px,8vw,96px);
+}
+.process-step:last-child{margin-bottom:0;}
+.step-num{font-family:var(--mono);font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--accent-dim);margin-bottom:12px;}
+.step-h3{font-family:var(--display);font-size:clamp(22px,2.5vw,32px);font-weight:800;color:var(--text-dark);margin-bottom:16px;line-height:1.2;}
+.step-p{color:var(--text-muted);font-size:15px;line-height:1.8;margin-bottom:18px;}
+.step-img{width:100%;aspect-ratio:16/10;border-radius:16px;border:1px solid rgba(11,46,90,0.12);overflow:hidden;box-shadow:0 8px 32px rgba(11,46,90,0.1);}
+.step-img img{width:100%;height:100%;object-fit:cover;}
+.step-img-placeholder{
+  width:100%;height:100%;
+  background:linear-gradient(135deg,var(--bg-section),var(--bg-light));
+  display:flex;align-items:center;justify-content:center;
+  flex-direction:column;gap:12px;color:var(--text-muted);
+}
+.step-img-placeholder i{font-size:48px;color:var(--accent);opacity:0.6;}
+.step-img-placeholder span{font-family:var(--mono);font-size:11px;letter-spacing:2px;text-transform:uppercase;}
+
+/* ─── CONTACT ─────────────────────────────────────────── */
+.contact-wrap{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start;margin-top:40px;}
+.form-group{margin-bottom:18px;}
+.form-group label{display:block;font-size:12px;font-weight:700;color:var(--text-dark);margin-bottom:7px;font-family:var(--mono);letter-spacing:0.5px;text-transform:uppercase;}
+.form-group input,.form-group select,.form-group textarea{
+  width:100%;padding:12px 16px;border:1.5px solid rgba(11,46,90,0.18);
+  border-radius:10px;font-size:14px;font-family:var(--font);
+  color:var(--text-dark);background:#fff;
+  transition:border-color 0.2s,box-shadow 0.2s;outline:none;
+}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,180,216,0.12);}
+.form-group textarea{min-height:120px;resize:vertical;}
+.contact-info{display:flex;flex-direction:column;gap:0;}
+.contact-info h3{font-family:var(--display);font-size:22px;font-weight:700;color:var(--text-dark);margin-bottom:16px;}
+.contact-info p{font-size:15px;color:var(--text-muted);line-height:1.7;margin-bottom:28px;}
+.contact-detail{display:flex;align-items:flex-start;gap:16px;padding:16px 0;border-bottom:1px solid rgba(11,46,90,0.08);}
+.contact-detail .icon{width:44px;height:44px;background:rgba(0,180,216,0.1);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--accent);flex-shrink:0;font-size:18px;}
+.contact-detail .text strong{display:block;font-size:13px;font-weight:700;color:var(--text-dark);margin-bottom:2px;}
+.contact-detail .text span{font-size:13px;color:var(--text-muted);}
+
+/* ─── FOOTER ─────────────────────────────────────────── */
+footer{background:var(--footer-bg);padding:clamp(48px,6vw,80px) 0 0;}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;margin-bottom:48px;}
+.footer-brand{font-family:var(--display);font-size:22px;font-weight:800;color:#fff;margin-bottom:14px;}
+.footer-desc{font-size:13px;color:rgba(255,255,255,0.65);line-height:1.8;margin-bottom:20px;}
+.footer-badges{display:flex;flex-wrap:wrap;gap:8px;}
+.footer-badge{background:rgba(0,180,216,0.12);border:1px solid rgba(0,180,216,0.25);border-radius:20px;padding:4px 12px;font-family:var(--mono);font-size:10px;color:rgba(255,255,255,0.8);letter-spacing:0.5px;}
+.footer-col-title{font-family:var(--mono);font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:16px;}
+.footer-col{display:flex;flex-direction:column;gap:10px;}
+.footer-col a{font-size:13px;color:rgba(255,255,255,0.65);cursor:pointer;transition:color 0.2s;}
+.footer-col a:hover{color:#fff;}
+.footer-bottom-bar{border-top:1px solid rgba(255,255,255,0.1);padding:20px 0;display:flex;align-items:center;justify-content:space-between;}
+.footer-bottom-bar p{font-size:12px;color:rgba(255,255,255,0.45);font-family:var(--mono);}
+.footer-bottom-bar p span{color:rgba(255,255,255,0.7);}
+.footer-bottom-links{display:flex;gap:20px;}
+.footer-bottom-links a{font-size:12px;color:rgba(255,255,255,0.5);cursor:pointer;font-family:var(--mono);transition:color 0.2s;}
+.footer-bottom-links a:hover{color:rgba(255,255,255,0.85);}
+
+/* ─── COMPARISON TABLE ───────────────────────── */
+.comp-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-top:40px;border-radius:16px;border:1px solid rgba(11,46,90,0.12);box-shadow:0 4px 16px rgba(11,46,90,0.06);}
+.comp-table{width:100%;border-collapse:collapse;background:#fff;}
+.comp-table th{background:linear-gradient(135deg,var(--blue-dark),var(--blue-deeper));color:#fff;font-family:var(--mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:16px 18px;text-align:left;}
+.comp-table th:first-child{border-radius:16px 0 0 0;}
+.comp-table th:last-child{border-radius:0 16px 0 0;}
+.comp-table td{padding:14px 18px;font-size:13px;color:var(--text-mid);border-bottom:1px solid rgba(11,46,90,0.06);}
+.comp-table tr:last-child td{border-bottom:none;}
+.comp-table tr:hover td{background:rgba(0,180,216,0.03);}
+.comp-table td:first-child{font-weight:600;color:var(--text-dark);}
+.comp-table .yes{color:#059669;font-weight:700;}
+.comp-table .no{color:#94a3b8;font-weight:500;}
+.comp-table .highlight-col{background:rgba(0,180,216,0.05);}
+
+/* ─── RESPONSIVE ─────────────────────────────────────────── */
+@media(max-width:900px){
+  .nav-links{display:none;}
+  .hamburger{display:flex;}
+  .btn-demo-nav{display:none;}
+  .hero-inner{grid-template-columns:1fr;gap:40px;}
+  .hero-inner > div:last-child{display:none;}
+  .hero .hero-mini-stats{display:none;}
+  .stats-grid{grid-template-columns:1fr 1fr;}
+  .platform-grid{grid-template-columns:1fr;}
+  .why-grid{grid-template-columns:1fr 1fr;}
+  .pricing-grid{grid-template-columns:1fr;}
+  .price-card.featured{transform:scale(1);}
+  .process-step{grid-template-columns:1fr;gap:28px;}
+  .step-img{aspect-ratio:16/9;}
+  .contact-wrap{grid-template-columns:1fr;}
+  .charts-grid{grid-template-columns:1fr;}
+  .founders-grid{grid-template-columns:1fr;}
+  .footer-grid{grid-template-columns:1fr 1fr;}
+  .footer-bottom-bar{flex-direction:column;align-items:flex-start;gap:10px;}
+  .footer-bottom-links{flex-wrap:wrap;gap:12px;}
+  [style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr !important;}
+  [style*="grid-template-columns:repeat(3,1fr)"]{grid-template-columns:1fr !important;}
+  [style*="grid-template-columns:repeat(2,1fr)"]{grid-template-columns:1fr !important;}
+}
+@media(max-width:600px){
+  .stats-grid{grid-template-columns:1fr;}
+  .footer-grid{grid-template-columns:1fr;}
+  .why-grid{grid-template-columns:1fr;}
+  .hero-mini-stats{flex-direction:column;}
+  .hero-mini-card{min-width:unset;width:100%;}
+  .btn-primary,.btn-secondary,.btn-white{width:100%;justify-content:center;}
+  .footer-bottom-links{flex-direction:column;gap:8px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     NAVBAR
+═══════════════════════════════════════════════ -->
+<nav class="navbar">
+
+  <a class="nav-logo" onclick="showPage('home')">
+    <div class="nav-logo-text">
+      AI Passenger Flow 
+      <span>Service Optimization System</span>
+    </div>
+  </a>
+
+  <ul class="nav-links">
+    <li><button id="nav-home" class="active" onclick="showPage('home')">Home</button></li>
+    <li><button id="nav-about" onclick="showPage('about')">About</button></li>
+    <li><button id="nav-platform" onclick="showPage('platform')">Platform</button></li>
+    <li><button id="nav-market" onclick="showPage('market')">Market</button></li>
+    <li><button id="nav-process" onclick="showPage('process')">Process</button></li>
+    <li><button id="nav-faq" onclick="showPage('faq')">FAQ</button></li>
+    <li><button id="nav-pricing" onclick="showPage('pricing')">Pricing</button></li>
+    <li><button id="nav-contact" onclick="showPage('contact')">Contact</button></li>
+  </ul>
+
+  <div class="nav-right">
+    <button class="btn-demo-nav" onclick="showPage('contact')">
+      Request Demo
+    </button>
+
+    <button class="hamburger" id="hamburger" aria-label="Menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </div>
+
+</nav>
+
+<!-- Mobile Nav -->
+<div class="mobile-nav" id="mobileNav">
+  <button onclick="showPage('home');closeMobile()">Home</button>
+  <button onclick="showPage('about');closeMobile()">About</button>
+  <button onclick="showPage('platform');closeMobile()">Platform</button>
+  <button onclick="showPage('market');closeMobile()">Market</button>
+  <button onclick="showPage('process');closeMobile()">Process</button>
+  <button onclick="showPage('faq');closeMobile()">FAQ</button>
+  <button onclick="showPage('pricing');closeMobile()">Pricing</button>
+  <button onclick="showPage('contact');closeMobile()">Contact</button>
+  <button class="mob-cta" onclick="showPage('contact');closeMobile()">
+    Request Demo →
+  </button>
+</div>
+<!-- ═══════════════════════════════════════════
+     PAGE : HOME
+═══════════════════════════════════════════════ -->
+<div class="page active" id="page-home">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-inner">
+      <div>
+        <div class="hero-badge">
+          <span class="hero-badge-dot"></span>
+          UK's First Predictive FlowOps Intelligence Platform
+        </div>
+        <h1>
+          Predict.<br>
+          <span class="blue">Optimise.</span>
+          <span class="dark-blue">Control.</span>
+        </h1>
+        <div class="hero-rule"></div>
+        <p class="hero-body">
+          The AI Passenger Flow & Service Optimization System is a predictive AI-driven B2B SaaS platform and Edge-AI hardware solution designed to optimise passenger throughput and service efficiency across UK transport hubs  through spatiotemporal modelling, real-time causal analytics, and Transit DNA Fingerprinting.
+        </p>
+        <div class="hero-btns">
+          <button class="btn-primary" onclick="showPage('contact')">Book a Platform Demo</button>
+          <button class="btn-secondary" onclick="showPage('platform')">Explore Platform</button>
+        </div>
+       
+      </div>
+      <!-- LIVE DASHBOARD -->
+      <div>
+        <div class="score-card">
+          <div class="score-card-top">
+            <div>
+              <div class="score-card-label">AI Passenger Flow · Live FlowOps Engine</div>
+              <h3 class="dashboard-title">Transit Intelligence Dashboard</h3>
+            </div>
+            <div class="live-dot-wrap"><span class="live-dot"></span>LIVE</div>
+          </div>
+          <div class="score-row">
+            <div class="score-icon blue-bg">PT</div>
+            <span class="score-lbl">Passenger Throughput This Hour</span>
+            <span class="score-val">4,280 ↑28%</span>
+          </div>
+          <div class="score-row">
+            <div class="score-icon green-bg">WT</div>
+            <span class="score-lbl">Average Wait Time</span>
+            <span class="score-val">2.1 min ↓32%</span>
+          </div>
+          <div class="score-row">
+            <div class="score-icon light-bg">OE</div>
+            <span class="score-lbl">Operational Efficiency</span>
+            <span class="score-val">91% ↑25%</span>
+          </div>
+          <div class="score-row">
+            <div class="score-icon blue-bg">SS</div>
+            <span class="score-lbl">Service Satisfaction Score</span>
+            <span class="score-val">4.6/5 ★ ↑22%</span>
+          </div>
+          <div class="score-big">
+            <div class="score-big-num">72<span style="font-size:24px;">%</span></div>
+            <div class="score-big-info">
+              <div class="label">Live Passenger Density</div>
+              <div class="sub">Moderate · AI Governed · Peak 15:30–17:30</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS STRIP -->
+  <section class="section-blue">
+    <div class="container">
+      <div class="label-tag-white">The UK Transport Capacity Crisis</div>
+      <h2 class="section-h2 white">UK Transport Hubs Are Losing Billions to<br>the "Capacity Gap."</h2>
+      <div class="section-divider divider-white"></div>
+      <p class="para-light" style="max-width:760px;">
+        With rail journeys reaching 1.7 billion annually and UK aviation hubs handling over 300 million passengers in 2025, the industry's reliance on reactive, manual monitoring has created a critical "Capacity Gap." Passenger flow management is still dominated by static schedules and "snapshot blindness"  costing billions in lost productivity, safety risks, and systemic network drag. AI Passenger Flow & Service Optimization System bridges this gap through predictive throughput intelligence.
+      </p>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-num">£11.2B</div>
+          <div class="stat-lbl">UK transport & mobility technology market  mid-market hubs underserved by enterprise consultancy</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">14%</div>
+          <div class="stat-lbl">Industry productivity below 2014–15 levels per ORR, despite passenger numbers recovering to pre-pandemic volumes</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">86%</div>
+          <div class="stat-lbl">Of mid-market regional hubs still relying on manual monitoring and static CCTV  no predictive flow intelligence</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">26%</div>
+          <div class="stat-lbl">Transport sector's share of UK greenhouse gas emissions  congestion dwell times a direct contributor</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PLATFORM PREVIEW -->
+  <section class="platform-section">
+    <div class="container">
+      <div class="label-tag">Core Intelligence Modules</div>
+      <h2 class="section-h2 dark">Five Modules. One Complete FlowOps Intelligence Platform.</h2>
+      <div class="section-divider divider-blue"></div>
+      <p class="para-dark platform-sub">
+        The AI Passenger Flow System combines Predictive Flow Intelligence, Real-Time Monitoring,
+        Throughput Delta Diagnostics, Service Enhancement, and Smart Alerting into one unified SaaS
+        platform  no-code, real-time, and data-driven for UK transport hubs.
+      </p>
+      <div class="platform-grid">
+        <!-- CARD 1 -->
+        <div class="platform-card">
+          <div class="platform-img-wrap">
+            <img src="flow1.jpg" alt="Predict Flow Intelligence" onerror="this.parentElement.innerHTML='<div class=\'step-img-placeholder\'><i class=\'fas fa-route\'></i><span>Predict Flow</span></div>'">
+          </div>
+          <div class="inner">
+            <div class="element-badge">Module 01</div>
+            <h3>Predict Flow Intelligence</h3>
+            <p>Anticipate passenger movement and congestion before it happens with our proprietary Arrival-to-Throughput engine and Transit DNA Fingerprinting.</p>
+            <div class="more-text">
+              The platform ingests ticketing diagnostics and real-time zone-level behavioural signals, parsing spatial nuances into a structured Passenger Flow Ontology (PFO). Machine learning models trained on UK-specific DfT data detect "Pre-Congestion Signals" with 96% accuracy  significantly outperforming traditional reactive systems and enabling proactive crowd prevention.
+            </div>
+            <button class="expand-btn" onclick="toggleCard(this)">Learn More</button>
+          </div>
+        </div>
+        <!-- CARD 2 -->
+        <div class="platform-card">
+          <div class="platform-img-wrap">
+            <img src="flow2.jpg" alt="Monitor Live" onerror="this.parentElement.innerHTML='<div class=\'step-img-placeholder\'><i class=\'fas fa-eye\'></i><span>Monitor Live</span></div>'">
+          </div>
+          <div class="inner">
+            <div class="element-badge">Module 02</div>
+            <h3>Monitor Live Passenger Density</h3>
+            <p>Track real-time passenger density across all zones and facilities with edge-AI vision nodes delivering low-latency spatial intelligence.</p>
+            <div class="more-text">
+              Secure Mobility Logic Nodes  proprietary retrofit Edge AI sensors  integrate with existing CCTV networks and ticketing gates to capture spatial data continuously. The Spatial Signal Forensics Engine identifies bottleneck friction in high-density environments, providing operations teams with a live, unified "Institutional Mobility Memory" dashboard.
+            </div>
+            <button class="expand-btn" onclick="toggleCard(this)">Learn More</button>
+          </div>
+        </div>
+        <!-- CARD 3 -->
+        <div class="platform-card">
+          <div class="platform-img-wrap">
+            <img src="flow3.jpg" alt="Throughput Delta Diagnostics" onerror="this.parentElement.innerHTML='<div class=\'step-img-placeholder\'><i class=\'fas fa-chart-line\'></i><span>TDD Engine</span></div>'">
+          </div>
+          <div class="inner">
+            <div class="element-badge">Module 03</div>
+            <h3>Throughput Delta Diagnostics (TDD)</h3>
+            <p>Automatically diagnose root causes of premature congestion by analysing the delta between expected throughput and actual passenger-flow velocity.</p>
+            <div class="more-text">
+              The TDD engine identifies "gate lag," "high-frequency bottleneck friction," and "spatial friction" in real-time. Validated across 8 UK transport locations, TDD delivered a 70% reduction in manual crowd-monitoring time by automatically routing adjustments following service disturbances  from multi-train cancellations to arrival surges.
+            </div>
+            <button class="expand-btn" onclick="toggleCard(this)">Learn More</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHY SECTION -->
+  <section class="why-section">
+    <div class="container">
+      <div class="label-tag">Why AI Passenger Flow System</div>
+      <h2 class="section-h2 dark">Built for Predictive FlowOps.<br>Not Just Another CCTV Dashboard.</h2>
+      <div class="section-divider divider-blue"></div>
+      <div class="why-grid">
+        <div class="why-card">
+          <div class="why-icon"><i class="fas fa-brain"></i></div>
+          <h4>Transit DNA Fingerprinting</h4>
+          <p>Captures proprietary "Transit DNA" lost to staff turnover and institutional "brain drain." When a senior station manager departs, their crowd-management logic stays permanently encoded in the platform.</p>
+        </div>
+        <div class="why-card">
+          <div class="why-icon"><i class="fas fa-shield-alt"></i></div>
+          <h4>Machine-in-the-Loop Safety</h4>
+          <p>Automates congestion detection while maintaining a human oversight layer for complex security exceptions  fully satisfying UK ORR and CAA 2025 governance requirements.</p>
+        </div>
+        <div class="why-card">
+          <div class="why-icon"><i class="fas fa-plug"></i></div>
+          <h4>Retrofit-Agnostic Integration</h4>
+          <p>Sits above any existing hardware (CCTV, ticketing gates, station ERPs)  operators are never locked into a single equipment manufacturer. Plug-and-play API connectivity reduces onboarding from weeks to days.</p>
+        </div>
+        <div class="why-card">
+          <div class="why-icon"><i class="fas fa-network-wired"></i></div>
+          <h4>Federated Mobility Logic Network</h4>
+          <p>The FMLN enables anonymised "Transit DNA" benchmarks to improve predictive models across all UK hubs without sharing sensitive commercial data  creating a collective intelligence ecosystem.</p>
+        </div>
+        <div class="why-card">
+          <div class="why-icon"><i class="fas fa-leaf"></i></div>
+          <h4>ESG & Net Zero Aligned</h4>
+          <p>Generates CFO-ready reports showing how compiled "Flow Logic" reduces carbon footprints by minimising dwell times  fully aligned with UK Net Zero 2050 targets and 2025 ORR safety standards.</p>
+        </div>
+        <div class="why-card">
+          <div class="why-icon"><i class="fas fa-pound-sign"></i></div>
+          <h4>Mid-Market SaaS Pricing</h4>
+          <p>Tiered SaaS from £100/month  giving regional UK transport hubs enterprise-level FlowOps intelligence without the cost of dedicated engineering teams or generic high-cost consultancy.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div><!-- end page home -->
+
+
+<!-- ═══════════════════════════════════════════
+     PAGE : ABOUT
+═══════════════════════════════════════════════ -->
+<div class="page" id="page-about">
+  <section class="about-hero">
+    <div class="container">
+      <div class="label-tag">About Us</div>
+      <h2 class="section-h2 dark">Built to Solve the UK Transport<br><span style="color:var(--blue-dark);">Capacity Gap.</span></h2>
+      <div class="section-divider divider-blue"></div>
+      <p class="para-dark" style="max-width:680px;margin-bottom:40px;">The AI Passenger Flow & Service Optimization System is a UK-based SaaS venture founded by Hardip Kaur  combining an MSc in International Business from the University of Bedfordshire with extensive operational experience supervising high-footfall environments to solve the most pressing challenge facing UK transport today: the "Capacity Gap" that costs the sector billions in lost productivity, safety risks, and systemic congestion.</p>
+      <div class="hero-btns">
+        <button class="btn-primary" onclick="showPage('contact')">Get in Touch</button>
+        <button class="btn-secondary" onclick="showPage('platform')">Explore Platform</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Vision & Mission -->
+  <section class="section-light">
+    <div class="container">
+      <div class="label-tag">Vision & Mission</div>
+      <h2 class="section-h2 dark">To Be the Global Standard for<br>"FlowOps" in Transport Infrastructure.</h2>
+      <div class="section-divider divider-blue"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:32px;">
+        <div class="why-card">
+          <div class="why-icon"><i class="fas fa-eye"></i></div>
+          <h4>Our Vision</h4>
+          <p>We aspire to be the global standard for "FlowOps," fostering a future in which transport infrastructure is automatically synchronised with real-time passenger behaviour, ensuring seamless travel experiences and zero-gap safety governance across every hub in the network.</p>
+        </div>
+        <div class="why-card">
+          <div class="why-icon"><i class="fas fa-bullseye"></i></div>
+          <h4>Our Mission</h4>
+          <p>To empower UK transport operators to transition from "reactive monitoring" to "predictive throughput optimisation" by leveraging an AI-driven mobility layer that eliminates the capacity gap and safeguards institutional operational memory against staff turnover and brain drain.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Core Values -->
+  <section class="section-alt">
+    <div class="container">
+      <div class="label-tag">Core Values</div>
+      <h2 class="section-h2 dark">What Drives Everything We Build</h2>
+      <div class="section-divider divider-blue"></div>
+      <div class="why-grid">
+        <div class="why-card">
+          <div class="why-icon"><i class="fas fa-lightbulb"></i></div>
+          <h4>Innovation</h4>
+          <p>Continuous refinement of spatiotemporal flow models to stay ahead of the global velocity of urban mobility and smart city trends across the UK's expanding transport network.</p>
+        </div>
+        <div class="why-card">
+          <div class="why-icon"><i class="fas fa-crosshairs"></i></div>
+          <h4>Accuracy</h4>
+          <p>A commitment to movement-data integrity and the elimination of "snapshot blindness" in terminal flow mapping  96% pre-congestion detection accuracy in live UK deployments.</p>
+        </div>
+        <div class="why-card">
+          <div class="why-icon"><i class="fas fa-lock"></i></div>
+          <h4>Sovereignty</h4>
+          <p>Empowering transport operators to own their operational mobility logic as a proprietary and permanent business asset  not lost when experienced managers depart.</p>
+        </div>
+        <div class="why-card">
+          <div class="why-icon"><i class="fas fa-tachometer-alt"></i></div>
+          <h4>Efficiency</h4>
+          <p>Making complex passenger journeys manageable through machine-executable routing pathways and low-friction Edge-AI retrofit integrations that work with existing infrastructure.</p>
+        </div>
+        <div class="why-card">
+          <div class="why-icon"><i class="fas fa-hands-helping"></i></div>
+          <h4>Stewardship</h4>
+          <p>Equipping station managers and infrastructure directors with the automated foresight needed to scale hub capacity without headcount-proportional safety risks.</p>
+        </div>
+        <div class="why-card">
+          <div class="why-icon"><i class="fas fa-globe"></i></div>
+          <h4>ESG Impact</h4>
+          <p>Reducing UK transport congestion energy waste by 20–30% per hub through precise Transit DNA optimisation  aligned with Net Zero 2050 targets and ORR compliance frameworks.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Founder -->
+  <section class="section-light">
+    <div class="container">
+      <div class="label-tag">Founder</div>
+      <h2 class="section-h2 dark">The Person Behind<br>AI Passenger Flow System</h2>
+      <div class="section-divider divider-blue"></div>
+      <div class="founders-grid">
+        <div class="founder-card">
+          <div class="founder-img">HK</div>
+          <h3>Hardip Kaur</h3>
+          <div class="role">Founder & CEO</div>
+          <p>Hardip Kaur possesses a unique combination of advanced business leadership and high-stakes operational management experience  creating a powerful "founder–problem–market fit" to lead the AI Passenger Flow & Service Optimization System in the UK. Her background bridges strategic international business scaling with the rigorous organisational oversight required for transport infrastructure.</p>
+          <p style="margin-top:12px;">With an MSc in International Business from the University of Bedfordshire and extensive domain authority in supervising high-footfall environments, Hardip leads the conceptual development of the "Transit DNA Fingerprinting" engine and the "FlowOps" layer  converting raw spatial signals into actionable mobility logic.</p>
+          <div class="founder-badges">
+            <span class="f-badge">MSc International Business</span>
+            <span class="f-badge">FlowOps Architecture</span>
+            <span class="f-badge">High-Footfall Operations</span>
+            <span class="f-badge">UK Transport Intelligence</span>
+            <span class="f-badge">ORR & CAA Compliance</span>
+          </div>
+        </div>
+        <div class="founder-card">
+          <div class="founder-img" style="background:linear-gradient(135deg,var(--accent),var(--accent-dim));"><i class="fas fa-train" style="font-size:28px;"></i></div>
+          <h3>Founder–Market–Product Fit</h3>
+          <div class="role">Strategic Alignment</div>
+          <p>Hardip unifies the worlds of International Business Strategy and High-Footfall Operations  equipping the platform with a hands-on understanding of how to link technical infrastructure metrics (like gate cycles) to human outcomes (like crowd clearance), which general-purpose sensor platforms cannot replicate.</p>
+          <div style="margin-top:20px;display:flex;flex-direction:column;gap:12px;">
+            <div style="display:flex;align-items:center;gap:12px;padding:10px;background:rgba(0,180,216,0.05);border-radius:10px;border:1px solid rgba(0,180,216,0.15);">
+              <i class="fas fa-check-circle" style="color:var(--accent);font-size:18px;flex-shrink:0;"></i>
+              <span style="font-size:13px;color:var(--text-muted);">Direct experience managing ground staff & security in high-occupancy environments</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;padding:10px;background:rgba(0,180,216,0.05);border-radius:10px;border:1px solid rgba(0,180,216,0.15);">
+              <i class="fas fa-check-circle" style="color:var(--accent);font-size:18px;flex-shrink:0;"></i>
+              <span style="font-size:13px;color:var(--text-muted);">Understands "monitor-fatigue" and the fiscal pressure driving the need for automation</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;padding:10px;background:rgba(0,180,216,0.05);border-radius:10px;border:1px solid rgba(0,180,216,0.15);">
+              <i class="fas fa-check-circle" style="color:var(--accent);font-size:18px;flex-shrink:0;"></i>
+              <span style="font-size:13px;color:var(--text-muted);">Navigates UK's Net Zero and ORR safety requirements with precision</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div><!-- end page about -->
+
+
+<!-- ═══════════════════════════════════════════
+     PAGE : PLATFORM
+═══════════════════════════════════════════════ -->
+<div class="page" id="page-platform">
+  <section class="about-hero">
+    <div class="container">
+      <div class="label-tag">Platform</div>
+      <h2 class="section-h2 dark">Five Core Modules.<br><span style="color:var(--blue-dark);">One FlowOps Intelligence OS.</span></h2>
+      <div class="section-divider divider-blue"></div>
+      <p class="para-dark" style="max-width:680px;margin-bottom:40px;">The AI Passenger Flow & Service Optimization System combines spatiotemporal modelling, multi-mode execution, and failure diagnostics into a single SaaS platform  purpose-built for the UK's mid-market regional transport hubs.</p>
+    </div>
+  </section>
+
+  <section class="section-light">
+    <div class="container">
+      <div class="platform-grid" style="grid-template-columns:repeat(2,1fr);gap:28px;">
+        <!-- CARD 1 -->
+        <div class="platform-card">
+          <div class="platform-img-wrap" style="height:220px;">
+            <img src="flow4.jpg" alt="Transit DNA Fingerprinting" onerror="this.parentElement.innerHTML='<div class=\'step-img-placeholder\'><i class=\'fas fa-dna\'></i><span>Transit DNA</span></div>'">
+          </div>
+          <div class="inner">
+            <div class="element-badge">Module 01 · Predict Flow</div>
+            <h3>Transit DNA Fingerprinting & Arrival-to-Throughput Engine</h3>
+            <p>Uses machine learning to identify and "fingerprint" the mobility patterns of successful passenger journeys  allowing for benchmarking and cloning of optimal routing logic across diverse transport hubs.</p>
+            <div class="more-text">
+              The platform's proprietary Passenger-Flow Intelligence Engine captures hidden movement patterns and stores them as structured, benchmarked flow objects. Based on deep-learning spatial modelling and causal flow analysis, the system detects the specific "Transit DNA" of a passenger's journey  cumulative dwell time, gate sensitivity, recovery lag after service delays  allowing risk profiles to be mapped to personalised terminal pathways instantly.
+            </div>
+            <button class="expand-btn" onclick="toggleCard(this)">Learn More</button>
+          </div>
+        </div>
+        <!-- CARD 2 -->
+        <div class="platform-card">
+          <div class="platform-img-wrap" style="height:220px;">
+            <img src="flow5.jpg" alt="Live Monitoring" onerror="this.parentElement.innerHTML='<div class=\'step-img-placeholder\'><i class=\'fas fa-satellite-dish\'></i><span>Monitor Live</span></div>'">
+          </div>
+          <div class="inner">
+            <div class="element-badge">Module 02 · Monitor Live</div>
+            <h3>Real-Time Zone-Level Monitoring & Mobility Logic Nodes</h3>
+            <p>Track real-time passenger density across zones and facilities with proprietary Edge-AI Mobility Logic Nodes  retrofit sensors for secure, real-time spatial data capture.</p>
+            <div class="more-text">
+              The Service Intelligence and Signal Processing Layer identifies exactly where a passenger's journey breaks down  whether due to platform bottlenecks, signage failures, or staff deployment patterns  and provides floor teams with actionable, evidence-based remediation steps. Live passenger density dashboard shows zone-level occupancy, area capacity %, and predicted peak windows.
+            </div>
+            <button class="expand-btn" onclick="toggleCard(this)">Learn More</button>
+          </div>
+        </div>
+        <!-- CARD 3 -->
+        <div class="platform-card">
+          <div class="platform-img-wrap" style="height:220px;">
+            <img src="flow6.jpg" alt="Throughput Delta Diagnostics" onerror="this.parentElement.innerHTML='<div class=\'step-img-placeholder\'><i class=\'fas fa-chart-bar\'></i><span>TDD Engine</span></div>'">
+          </div>
+          <div class="inner">
+            <div class="element-badge">Module 03 · TDD Engine</div>
+            <h3>Throughput Delta Diagnostics & Congestion Risk Engine</h3>
+            <p>Automatically diagnose root causes of premature congestion by analysing the delta between expected throughput and actual passenger-flow velocity  with 70% reduction in manual monitoring time.</p>
+            <div class="more-text">
+              The Explainable Flow Risk Scoring and Intervention Engine maps real-time mobility data onto individual hub conditions. When a terminal's digital footprint shifts, the platform automatically deconstructs the change into a structured "Congestion Risk Report"  without requiring manual supervisor review  enabling 21% reduction in safety-critical congestion incidents.
+            </div>
+            <button class="expand-btn" onclick="toggleCard(this)">Learn More</button>
+          </div>
+        </div>
+        <!-- CARD 4 -->
+        <div class="platform-card">
+          <div class="platform-img-wrap" style="height:220px;">
+            <img src="flow7.jpg" alt="Operational Excellence" onerror="this.parentElement.innerHTML='<div class=\'step-img-placeholder\'><i class=\'fas fa-cogs\'></i><span>Optimise Ops</span></div>'">
+          </div>
+          <div class="inner">
+            <div class="element-badge">Module 04 · Optimise Operations</div>
+            <h3>Signal-to-Action Auto-Synthesis & Dynamic Routing</h3>
+            <p>Automatically deconstructing a single mobility signal into a complex, multi-step operational workflow  removing the need for manual staff-to-data translation of crowd safety needs.</p>
+            <div class="more-text">
+              Risk-Weighted Routing Evolution: a self-optimising process where paths for higher-density passenger groups are automatically prioritised and refined by the platform's "Dynamic Routing Pipeline." The Closed-loop Evidence and Outcome Optimisation Model generates "Hub Health Reports" that link automated interventions to passenger satisfaction scores and wait-time reductions.
+            </div>
+            <button class="expand-btn" onclick="toggleCard(this)">Learn More</button>
+          </div>
+        </div>
+        <!-- CARD 5 -->
+        <div class="platform-card">
+          <div class="platform-img-wrap" style="height:220px;">
+            <img src="flow8.jpg" alt="Smart Alerts" onerror="this.parentElement.innerHTML='<div class=\'step-img-placeholder\'><i class=\'fas fa-bell\'></i><span>Smart Alerts</span></div>'">
+          </div>
+          <div class="inner">
+            <div class="element-badge">Module 05 · Smart Alerts</div>
+            <h3>Smart Alerts & Outcome-Learning Mobility Memory</h3>
+            <p>Receive instant alerts and actionable insights for proactive decisions  powered by an Outcome-Learning system that maps successful interventions to real-world margin protection.</p>
+            <div class="more-text">
+              The Federated Mobility Logic Network (FMLN) enables anonymised "Transit DNA" from dozens of UK transport sites to constantly improve predictive models  without sharing sensitive commercial data. Trends learned from high-efficiency London terminals are applied to optimise regional hub strategies, creating a collective intelligence ecosystem that grows stronger with each new client.
+            </div>
+            <button class="expand-btn" onclick="toggleCard(this)">Learn More</button>
+          </div>
+        </div>
+        <!-- CARD 6 -->
+        <div class="platform-card">
+          <div class="platform-img-wrap" style="height:220px;">
+            <img src="flow9.jpg" alt="Mobility Digital Twin" onerror="this.parentElement.innerHTML='<div class=\'step-img-placeholder\'><i class=\'fas fa-cube\'></i><span>Digital Twin</span></div>'">
+          </div>
+          <div class="inner">
+            <div class="element-badge">Module 06 · Digital Twin</div>
+            <h3>Mobility Digital Twin Simulation & ESG Reporting</h3>
+            <p>Virtually test the impact of a proposed operational change against historical flow data  predicting congestion risks before real-world implementation.</p>
+            <div class="more-text">
+              The Mobility Digital Twin tests reconfiguring security lanes or gate schedules against years of historical flow data. ESG Reporting generates audit-ready reports showing how "Flow Logic" reduces carbon footprints by minimising dwell times  aligned with UK Net Zero 2050 targets and 2025 ORR safety standards. Operational Intelligence Preservation ensures new terminal staff utilise established "Transit DNA" logic maps immediately.
+            </div>
+            <button class="expand-btn" onclick="toggleCard(this)">Learn More</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comparison Table -->
+      <div style="margin-top:64px;">
+        <div class="label-tag">Competitive Advantage</div>
+        <h2 class="section-h2 dark">How We Compare to Existing Solutions</h2>
+        <div class="section-divider divider-blue"></div>
+        <div class="comp-table-wrap">
+          <table class="comp-table">
+            <thead>
+              <tr>
+                <th>Feature / Capability</th>
+                <th>Legacy Compliance (Tracsis/SITA)</th>
+                <th>Niche Vision (Vivacity)</th>
+                <th>Binary Sensors</th>
+                <th>Manual Logs</th>
+                <th class="highlight-col">AI Passenger Flow System</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Arrival-to-Throughput Lifecycle</td>
+                <td class="no">No (Manual entry)</td>
+                <td class="no">No (Spatial only)</td>
+                <td class="no">Limited (Occupancy)</td>
+                <td class="no">No</td>
+                <td class="yes highlight-col">✓ Automated signal-to-action</td>
+              </tr>
+              <tr>
+                <td>Spatial-Causal AI Synthesis</td>
+                <td class="no">No</td>
+                <td class="no">Limited (Heatmaps)</td>
+                <td class="no">No</td>
+                <td class="no">No</td>
+                <td class="yes highlight-col">✓ Proprietary PFO mapping</td>
+              </tr>
+              <tr>
+                <td>UK-Specific Infrastructure Benchmarks</td>
+                <td class="no">No (Global templates)</td>
+                <td class="no">Mode-centric only</td>
+                <td class="no">No</td>
+                <td class="no">Limited</td>
+                <td class="yes highlight-col">✓ DfT & ORR Logic trained</td>
+              </tr>
+              <tr>
+                <td>Transit DNA & Signal Mapping</td>
+                <td class="no">Limited (Schedules)</td>
+                <td class="no">Density only</td>
+                <td class="no">No</td>
+                <td class="no">No</td>
+                <td class="yes highlight-col">✓ Movement intent tracking</td>
+              </tr>
+              <tr>
+                <td>Outcome-Learning Mobility Memory</td>
+                <td class="no">No</td>
+                <td class="no">No</td>
+                <td class="no">No</td>
+                <td class="no">No</td>
+                <td class="yes highlight-col">✓ Incident-to-match learning</td>
+              </tr>
+              <tr>
+                <td>Federated Mobility Network (FMLN)</td>
+                <td class="no">No</td>
+                <td class="no">No</td>
+                <td class="no">No</td>
+                <td class="no">No</td>
+                <td class="yes highlight-col">✓ Anonymous sector benchmarks</td>
+              </tr>
+              <tr>
+                <td>Cost Structure</td>
+                <td>High CapEx / Licensing</td>
+                <td>Sensor-based high fee</td>
+                <td>Tool-based</td>
+                <td>Time-intensive</td>
+                <td class="highlight-col" style="color:var(--accent-dim);font-weight:700;">SaaS  from £100/mo</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+</div><!-- end page platform -->
+
+
+<!-- ═══════════════════════════════════════════
+     PAGE : MARKET
+═══════════════════════════════════════════════ -->
+<div class="page" id="page-market">
+  <section class="about-hero">
+    <div class="container">
+      <div class="label-tag">Market Analysis</div>
+      <h2 class="section-h2 dark">A £11.2B UK Market.<br><span style="color:var(--blue-dark);">86% Underserved.</span></h2>
+      <div class="section-divider divider-blue"></div>
+      <p class="para-dark" style="max-width:680px;margin-bottom:40px;">The global AI-driven passenger flow management market was estimated at USD 8.4 billion in 2024, projected to reach USD 10.1 billion in 2025 with a CAGR of 19.4% through 2034. The UK's mid-market regional hubs represent the largest untapped opportunity  currently underserved by generic enterprise consultancy.</p>
+    </div>
+  </section>
+
+  <section class="section-light">
+    <div class="container">
+      <div class="charts-grid">
+        <div class="chart-card">
+          <h4>UK Transport SAM by Hub Segment</h4>
+          <p>Serviceable addressable market  mid-market focus</p>
+          <div class="chart-wrap"><canvas id="chartSector"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <h4>Current Industry Pain Points</h4>
+          <p>% of directors reporting these as critical operational challenges</p>
+          <div class="chart-wrap"><canvas id="chartRootCause"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <h4>Competitive Intelligence Radar</h4>
+          <p>AI Passenger Flow System vs legacy market alternatives</p>
+          <div class="chart-wrap"><canvas id="chartRadar"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <h4>UK FlowOps Market Growth 2022–2030</h4>
+          <p>Global AI passenger flow market (USD B) & UK AI adoption rate</p>
+          <div class="chart-wrap"><canvas id="chartGrowth"></canvas></div>
+        </div>
+      </div>
+
+      <!-- Key Insights -->
+      <div style="margin-top:64px;">
+        <div class="label-tag">Key Market Insights</div>
+        <h2 class="section-h2 dark">The Mobility Intelligence Gap</h2>
+        <div class="section-divider divider-blue"></div>
+        <div class="why-grid">
+          <div class="why-card">
+            <div class="why-icon"><i class="fas fa-city"></i></div>
+            <h4>London  Dominant Hub</h4>
+            <p>London alone represents over 30% of all UK rail and airport passenger revenue. The value of "Mobility Equity" per terminal zone is estimated 40% higher in London  making it the ideal launch territory with highest financial return.</p>
+          </div>
+          <div class="why-card">
+            <div class="why-icon"><i class="fas fa-train"></i></div>
+            <h4>Northern Powerhouse Growth</h4>
+            <p>Manchester and Birmingham are among the fastest-growing transport hubs in the UK, driven by rapid urbanisation and HS2-linked developments  primary targets as agile operators rely on automated systems but lack enterprise-grade engineering teams.</p>
+          </div>
+          <div class="why-card">
+            <div class="why-icon"><i class="fas fa-chart-pie"></i></div>
+            <h4>Structural Intelligence Gap</h4>
+            <p>80% of effective AI adoption occurs in "Big Six" global airports with dedicated R&D budgets. Only 14% of mid-market regional hubs have moved beyond manual monitoring  this is the "Mobility Capital" concentration AI Passenger Flow addresses.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div><!-- end page market -->
+
+
+<!-- ═══════════════════════════════════════════
+     PAGE : PROCESS
+═══════════════════════════════════════════════ -->
+<div class="page" id="page-process">
+  <section class="about-hero">
+    <div class="container">
+      <div class="label-tag">How It Works</div>
+      <h2 class="section-h2 dark">The Arrival-to-Throughput<br><span style="color:var(--blue-dark);">Intelligence Lifecycle.</span></h2>
+      <div class="section-divider divider-blue"></div>
+      <p class="para-dark" style="max-width:680px;margin-bottom:40px;">From inbound arrival signals to automated routing outcomes  the AI Passenger Flow System establishes a continuous intelligence lifecycle that links ticketing gate diagnostics, real-time zone-level behavioural signals, and automated resource or routing outcomes in one unified operational platform.</p>
+    </div>
+  </section>
+
+  <section class="section-light">
+    <div class="container">
+
+      <div class="process-step">
+        <div>
+          <div class="step-num">Step 01 · Data Ingestion</div>
+          <h3 class="step-h3">Fuse Ticketing, CCTV, and Mobile Signals into a Unified Intelligence Layer</h3>
+          <p class="step-p">The platform ingests ticketing gate diagnostics, CCTV spatial signals, and mobile data into a single "Institutional Mobility Memory"  converting fragmented data into structured Movement Objects via the proprietary Passenger Flow Ontology (PFO).</p>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div style="display:flex;align-items:center;gap:10px;"><span class="risk-badge risk-blue"><span class="risk-dot"></span>Ticketing Gates</span><span class="risk-badge risk-light"><span class="risk-dot"></span>CCTV Networks</span><span class="risk-badge risk-green"><span class="risk-dot"></span>Mobile Signals</span></div>
+            <div style="display:flex;align-items:center;gap:10px;"><span class="risk-badge risk-blue"><span class="risk-dot"></span>Station ERPs</span><span class="risk-badge risk-light"><span class="risk-dot"></span>Edge-AI Nodes</span></div>
+          </div>
+        </div>
+        <div class="step-img">
+          <img src="https://images.unsplash.com/photo-1556075798-4825dfaaf498?w=700&q=80" alt="Data Fusion" onerror="this.parentElement.innerHTML='<div class=\'step-img-placeholder\'><i class=\'fas fa-database\'></i><span>Data Ingestion Layer</span></div>'">
+        </div>
+      </div>
+
+      <div class="process-step">
+        <div class="step-img">
+          <img src="https://images.unsplash.com/photo-1620825937374-87fc7d6bddc2?w=700&q=80" alt="AI Flow Modelling" onerror="this.parentElement.innerHTML='<div class=\'step-img-placeholder\'><i class=\'fas fa-project-diagram\'></i><span>Spatial AI Modelling</span></div>'">
+        </div>
+        <div>
+          <div class="step-num">Step 02 · Spatial AI Modelling</div>
+          <h3 class="step-h3">Transit DNA Fingerprinting & Spatiotemporal Causal Analysis</h3>
+          <p class="step-p">The Custom Causal Flow Classifier and Spatial Signal Forensics Engine identifies the specific "Transit DNA" of each hub  cumulative dwell time, gate sensitivity, recovery lag  and fingerprints friction points with 96% pre-congestion detection accuracy.</p>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div style="display:flex;align-items:center;gap:10px;"><span class="risk-badge risk-blue"><span class="risk-dot"></span>96% Detection Accuracy</span><span class="risk-badge risk-green"><span class="risk-dot"></span>Real-Time Classification</span></div>
+            <div style="display:flex;align-items:center;gap:10px;"><span class="risk-badge risk-light"><span class="risk-dot"></span>UK-Trained ML Models</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="process-step">
+        <div>
+          <div class="step-num">Step 03 · Predictive Diagnostics</div>
+          <h3 class="step-h3">Throughput Delta Diagnostics  Predict Before the Bottleneck Forms</h3>
+          <p class="step-p">The TDD engine analyses the delta between the hub's expected throughput and actual passenger-flow velocity  automatically generating Congestion Risk Reports and routing interventions before a spatial break becomes a safety or financial loss.</p>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div style="display:flex;align-items:center;gap:10px;"><span class="risk-badge risk-blue"><span class="risk-dot"></span>70% Less Manual Monitoring</span><span class="risk-badge risk-green"><span class="risk-dot"></span>21% Safety Incident Reduction</span></div>
+          </div>
+        </div>
+        <div class="step-img">
+          <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=700&q=80" alt="Predictive Analytics" onerror="this.parentElement.innerHTML='<div class=\'step-img-placeholder\'><i class=\'fas fa-chart-area\'></i><span>Predictive Diagnostics</span></div>'">
+        </div>
+      </div>
+
+      <div class="process-step">
+        <div class="step-img">
+          <img src="https://images.unsplash.com/photo-1474487548417-781cb71495f3?w=700&q=80" alt="Automated Routing" onerror="this.parentElement.innerHTML='<div class=\'step-img-placeholder\'><i class=\'fas fa-route\'></i><span>Automated Routing</span></div>'">
+        </div>
+        <div>
+          <div class="step-num">Step 04 · Automated Action</div>
+          <h3 class="step-h3">Signal-to-Action Auto-Synthesis & Dynamic Routing Pipeline</h3>
+          <p class="step-p">A single mobility signal (train delay, arrival surge) is automatically deconstructed into a complex, multi-step operational workflow  removing manual staff-to-data translation. The platform delivered a 32% average increase in passenger clearance speed across 8 UK transport locations.</p>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div style="display:flex;align-items:center;gap:10px;"><span class="risk-badge risk-blue"><span class="risk-dot"></span>32% Clearance Speed ↑</span><span class="risk-badge risk-green"><span class="risk-dot"></span>28% Congestion Errors ↓</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</div><!-- end page process -->
+
+
+<!-- ═══════════════════════════════════════════
+     PAGE : FAQ
+═══════════════════════════════════════════════ -->
+<div class="page" id="page-faq">
+  <section class="about-hero">
+    <div class="container">
+      <div class="label-tag">FAQ</div>
+      <h2 class="section-h2 dark">Frequently Asked<br><span style="color:var(--blue-dark);">Questions</span></h2>
+      <div class="section-divider divider-blue"></div>
+    </div>
+  </section>
+  <section class="section-light">
+    <div class="container" style="max-width:900px;">
+      <div class="faq-wrap">
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFAQ(this)">
+            <h4>What is the "Capacity Gap" and how does your platform address it?</h4>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-body">The "Capacity Gap" refers to the critical disconnect where passenger flow management is still dominated by reactive, manual monitoring and static scheduling  resulting in "snapshot blindness" that causes billions in lost productivity. Our platform bridges this gap by providing an intelligent operational layer that fuses data from ticketing gates, CCTV, and mobile signals into a unified "Institutional Mobility Memory," predicting bottlenecks before they form.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFAQ(this)">
+            <h4>How does Transit DNA Fingerprinting work and why is it different?</h4>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-body">Transit DNA Fingerprinting uses machine learning to identify and capture the mobility patterns of successful passenger journeys  storing them as structured, benchmarked flow objects. This allows optimal routing logic to be cloned across diverse transport hubs. Unlike competitors who treat congestion as isolated events, we capture the cumulative dwell time, gate sensitivity, and recovery lag patterns unique to each hub  and this knowledge stays even after key staff depart.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFAQ(this)">
+            <h4>Does the platform require replacing existing CCTV or ticketing infrastructure?</h4>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-body">No. The platform is built retrofit-agnostic  it sits above any underlying hardware system (CCTV, ticketing gates, or sensors), ensuring operators aren't locked into a single equipment manufacturer. Our "Mobility Logic Nodes" are secure, retrofit Edge-AI sensors that integrate with existing infrastructure. A plug-and-play API platform connects to dominant UK infrastructure systems with minimal onboarding friction.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFAQ(this)">
+            <h4>What pilot results has the platform achieved in live UK transport environments?</h4>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-body">The platform was tested across 8 distinct transport locations in the UK (London, Manchester, and Birmingham) over 12 weeks. Key outcomes: 32% average increase in passenger clearance speed; 21% reduction in safety-critical congestion incidents; new terminal-support hires reached FlowOps proficiency in 10 days vs historical 35-day average; user satisfaction 4.7/5 for Knowledge Loss Protection.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFAQ(this)">
+            <h4>How does the platform ensure compliance with ORR and CAA safety standards?</h4>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-body">The platform's Machine-in-the-Loop Safety Index ensures that while the system automates congestion detection, a human oversight layer remains for complex security exceptions or emergency protocols  fully satisfying the UK's strict 2025 ORR and CAA governance requirements. The platform also maintains high-fidelity logs and verifiable Mobility Logic chains for audit-ready compliance reporting. It is also fully compliant with UK GDPR and ICO guidance on AI and data protection.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFAQ(this)">
+            <h4>What is the Federated Mobility Logic Network (FMLN)?</h4>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-body">The FMLN is a federated learning architecture that enables anonymised "Transit DNA" benchmarks from dozens of UK transport sites to constantly improve their predictive models  without sharing sensitive commercial data. Trends learned from high-efficiency London terminals can optimise the Arrival-to-Throughput strategy for regional hubs in the North, creating a collective intelligence ecosystem that grows stronger as the network expands.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFAQ(this)">
+            <h4>Which type of transport hubs is the platform designed for?</h4>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-body">The platform is designed primarily for UK mid-market regional rail stations, metropolitan metro systems, and regional airport terminals  sectors currently underserved by generic, high-cost enterprise consultancy. Target customers include regional UK transport hubs, multi-site infrastructure groups, metropolitan rail & metro systems, and founder-led emerging smart-city transport firms.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div><!-- end page faq -->
+
+
+<!-- ═══════════════════════════════════════════
+     PAGE : PRICING
+═══════════════════════════════════════════════ -->
+<div class="page" id="page-pricing">
+  <section class="about-hero">
+    <div class="container">
+      <div class="label-tag">Pricing & Plans</div>
+      <h2 class="section-h2 dark">Tiered FlowOps Access.<br><span style="color:var(--blue-dark);">Scale as You Grow.</span></h2>
+      <div class="section-divider divider-blue"></div>
+      <p class="para-dark" style="max-width:680px;margin-bottom:40px;">Subscription pricing designed to scale alongside the operator's passenger volume  from basic density tracking to full-spectrum, machine-executable Arrival-to-Throughput flow logic. All plans include UK GDPR compliance and ORR audit-ready reporting.</p>
+    </div>
+  </section>
+
+  <section class="section-light">
+    <div class="container">
+      <div class="pricing-grid">
+        <!-- STARTER -->
+        <div class="price-card">
+          <div class="price-tier">Tier 01</div>
+          <div class="price-title">Starter</div>
+          <div class="price-amount">£100<span>/mo</span></div>
+          <div class="price-desc">Regional rail stations, local bus terminals & small hubs  basic FlowOps intelligence.</div>
+          <ul class="price-features">
+            <li>Basic density tracking & Transit DNA visualisation</li>
+            <li>Framework-agnostic mapping (1 hub type)</li>
+            <li>Real-time zone density dashboard</li>
+            <li>Smart alert notifications</li>
+            <li>UK GDPR compliant data handling</li>
+            <li>Standard support portal access</li>
+          </ul>
+          <button class="btn-secondary" onclick="showPage('contact')" style="width:100%;justify-content:center;">Get Started</button>
+        </div>
+        <!-- PROFESSIONAL -->
+        <div class="price-card featured">
+          <div class="featured-label">Most Popular</div>
+          <div class="price-tier">Tier 02</div>
+          <div class="price-title">Professional</div>
+          <div class="price-amount">£300<span>/mo</span></div>
+          <div class="price-desc">Mid-market rail groups & regional airport terminals  full FlowOps diagnostics suite.</div>
+          <ul class="price-features">
+            <li>Full Throughput Delta Diagnostics (TDD)</li>
+            <li>Signal-to-Action Auto-Synthesis</li>
+            <li>CCTV & Ticketing gate integrations</li>
+            <li>TDD validation & congestion forensics</li>
+            <li>Transit DNA Fingerprinting (multi-mode)</li>
+            <li>Outcome-Learning Mobility Memory</li>
+            <li>ORR/CAA compliance reporting</li>
+          </ul>
+          <button class="btn-primary" onclick="showPage('contact')" style="width:100%;justify-content:center;">Request Demo</button>
+        </div>
+        <!-- ENTERPRISE -->
+        <div class="price-card">
+          <div class="price-tier">Tier 03</div>
+          <div class="price-title">Enterprise</div>
+          <div class="price-amount">£500<span>/mo</span></div>
+          <div class="price-desc">Global airport hubs & multi-site metropolitan metro systems  full platform access.</div>
+          <ul class="price-features">
+            <li>Full Arrival-to-Throughput Pipeline</li>
+            <li>Secure Mobility Logic Nodes (Edge-AI)</li>
+            <li>FMLN federated network access</li>
+            <li>Dedicated FlowOps Success Manager</li>
+            <li>Mobility Digital Twin simulation</li>
+            <li>Priority ESG & Net Zero reporting</li>
+            <li>Custom API licensing & multi-site deployment</li>
+          </ul>
+          <button class="btn-secondary" onclick="showPage('contact')" style="width:100%;justify-content:center;">Contact Sales</button>
+        </div>
+      </div>
+
+      <!-- Professional Add-Ons -->
+      <div style="margin-top:64px;">
+        <div class="label-tag">Professional Add-Ons</div>
+        <h2 class="section-h2 dark">Enhance Your FlowOps Intelligence</h2>
+        <div class="section-divider divider-blue"></div>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:24px;margin-top:32px;" class="addons-grid">
+          <div class="why-card">
+            <div class="why-icon"><i class="fas fa-microchip"></i></div>
+            <h4>FlowOps Orchestration Setup · £400</h4>
+            <p>One-off technical integration and gate calibration fee. Our team installs Mobility Logic Nodes and configures CCTV/ticketing API connectors specific to your hub layout.</p>
+          </div>
+          <div class="why-card">
+            <div class="why-icon"><i class="fas fa-dna"></i></div>
+            <h4>Transit DNA Audit · £300</h4>
+            <p>Specialised multi-mode flow baseline validation. A deep-dive analysis of your hub's existing movement patterns to establish a proprietary Transit DNA baseline for ongoing optimisation.</p>
+          </div>
+          <div class="why-card">
+            <div class="why-icon"><i class="fas fa-file-chart-line"></i></div>
+            <h4>Premium Insight Reports · £1,000/year</h4>
+            <p>Advanced network benchmarking and "Mobility Equity" growth insights. CFO-ready annual reports linking Flow Logic to carbon reduction, safety improvements, and operational margin protection.</p>
+          </div>
+          <div class="why-card">
+            <div class="why-icon"><i class="fas fa-users-cog"></i></div>
+            <h4>Annual FlowOps Audit · Custom</h4>
+            <p>Comprehensive operational mobility data audit for multi-site transport networks or regional rail groups  providing strategic tools for infrastructure scaling, safety protection, and ORR compliance.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div><!-- end page pricing -->
+<!-- ═══════════════════════════════════════════
+     PAGE : CONTACT
+═══════════════════════════════════════════════ -->
+<div class="page" id="page-contact">
+  <section class="about-hero">
+    <div class="container">
+      <div class="label-tag">Contact</div>
+      <h2 class="section-h2 dark">
+        Request a FlowOps Demo<br>
+        <span style="color:var(--blue-dark);">or Pilot Programme</span>
+      </h2>
+      <div class="section-divider divider-blue"></div>
+      <p class="para-dark" style="max-width:680px;">
+        Talk to our team about deploying the AI Passenger Flow & Service Optimization System in your transport hub.
+        We work with regional rail stations, metropolitan metro systems, and airport terminals across the UK.
+      </p>
+    </div>
+  </section>
+
+  <section class="section-light">
+    <div class="container">
+      <div class="contact-wrap">
+
+        <!-- CONTACT FORM -->
+        <div>
+          <div class="label-tag">Send Us a Message</div>
+
+          <form action="https://api.web3forms.com/submit" method="POST">
+
+            <!-- Web3Forms Access Key -->
+            <input type="hidden" name="access_key" value="a64ba888-29f3-408b-90b0-48e576f18dfc">
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+              <div class="form-group">
+                <label>First Name</label>
+                <input type="text" name="first_name" placeholder="e.g. Hardip" required>
+              </div>
+
+              <div class="form-group">
+                <label>Last Name</label>
+                <input type="text" name="last_name" placeholder="e.g. Kaur" required>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Email Address</label>
+              <input type="email" name="email" placeholder="you@transportoperator.co.uk" required>
+            </div>
+
+            <div class="form-group">
+              <label>Organisation / Hub Name</label>
+              <input type="text" name="organisation" placeholder="e.g. Northern Rail, Heathrow Airport">
+            </div>
+
+            <div class="form-group">
+              <label>Hub Type</label>
+              <select name="hub_type">
+                <option>Select your hub type</option>
+                <option>Regional Rail Station</option>
+                <option>Metropolitan Metro System</option>
+                <option>National Airport Terminal</option>
+                <option>Regional Airport Terminal</option>
+                <option>Multi-Site Infrastructure Group</option>
+                <option>Other Transport Hub</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Pricing Plan of Interest</label>
+              <select name="plan">
+                <option>Select a plan</option>
+                <option>Starter £100/mo</option>
+                <option>Professional £300/mo</option>
+                <option>Enterprise £500/mo</option>
+                <option>12-Week Pilot Programme</option>
+                <option>Not sure – advise me</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Message</label>
+              <textarea
+                name="message"
+                rows="6"
+                placeholder="Tell us about your current passenger flow challenges, peak footfall volumes, and what you'd like to achieve with the platform..."
+                required></textarea>
+            </div>
+
+            <!-- Spam Protection -->
+            <input type="checkbox" name="botcheck" class="hidden" style="display:none;">
+
+            <button class="btn-primary" type="submit" style="width:100%;justify-content:center;">
+              <i class="fas fa-paper-plane"></i>
+              Submit Enquiry
+            </button>
+
+          </form>
+        </div>
+
+        <!-- CONTACT INFO -->
+        <div class="contact-info">
+          <h3>Get in Touch</h3>
+
+          <p>
+            Whether you're a regional rail operator struggling with peak-hour congestion,
+            a metro system seeking to preserve institutional "Mobility Memory,"
+            or an airport terminal targeting ORR compliance, our team is ready to help.
+          </p>
+
+          <div class="contact-detail">
+            <div class="icon">
+              <i class="fas fa-envelope"></i>
+            </div>
+            <div class="text">
+              <strong>Email</strong>
+              <span>aipassengerflowandserviceuk@outlook.com</span>
+            </div>
+          </div>
+
+          <div class="contact-detail">
+            <div class="icon">
+              <i class="fas fa-map-marker-alt"></i>
+            </div>
+            <div class="text">
+              <strong>Location</strong>
+              <span>London & Manchester, United Kingdom</span>
+            </div>
+          </div>
+
+          <div class="contact-detail">
+            <div class="icon">
+              <i class="fas fa-clock"></i>
+            </div>
+            <div class="text">
+              <strong>Response Time</strong>
+              <span>Within 24 Hours – UK Business Days</span>
+            </div>
+          </div>
+
+          <div class="contact-detail">
+            <div class="icon">
+              <i class="fas fa-flask"></i>
+            </div>
+            <div class="text">
+              <strong>Pilot Programme</strong>
+              <span>12-Week UK Deployment – London & South East Priority Hubs</span>
+            </div>
+          </div>
+
+          <div style="margin-top:32px;padding:24px;background:rgba(0,180,216,0.06);border:1px solid rgba(0,180,216,0.2);border-radius:16px;">
+            <div style="font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--accent-dim);margin-bottom:12px;">
+              Pilot Programme Results
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:10px;">
+
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(11,46,90,0.08);">
+                <span style="font-size:13px;color:var(--text-muted);">Clearance Speed Increase</span>
+                <span style="font-family:var(--mono);font-weight:700;color:var(--blue);font-size:14px;">+32%</span>
+              </div>
+
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(11,46,90,0.08);">
+                <span style="font-size:13px;color:var(--text-muted);">Safety Incident Reduction</span>
+                <span style="font-family:var(--mono);font-weight:700;color:var(--blue);font-size:14px;">-21%</span>
+              </div>
+
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(11,46,90,0.08);">
+                <span style="font-size:13px;color:var(--text-muted);">Staff Proficiency (Days)</span>
+                <span style="font-family:var(--mono);font-weight:700;color:var(--blue);font-size:14px;">10 vs 35</span>
+              </div>
+
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;">
+                <span style="font-size:13px;color:var(--text-muted);">User Satisfaction</span>
+                <span style="font-family:var(--mono);font-weight:700;color:var(--blue);font-size:14px;">4.7/5</span>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+        <!-- END CONTACT INFO -->
+
+      </div>
+    </div>
+  </section>
+</div>
+<!-- END PAGE CONTACT -->
+
+
+<!-- ═══════════════════════════════════════════
+     FOOTER
+═══════════════════════════════════════════════ -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand">AI Passenger Flow & Service Optimization System</div>
+        <div class="footer-desc">A predictive AI-driven B2B SaaS platform and Edge-AI hardware solution designed to optimise passenger throughput and service efficiency across UK transport hubs  through spatiotemporal modelling, Transit DNA Fingerprinting, and real-time causal analytics.</div>
+        <div class="footer-badges">
+          <span class="footer-badge">ORR Compliant</span>
+          <span class="footer-badge">UK GDPR Ready</span>
+          <span class="footer-badge">Net Zero Aligned</span>
+          <span class="footer-badge">CAA Governance</span>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">Platform</div>
+        <div class="footer-col">
+          <a onclick="showPage('platform')">Transit DNA Fingerprinting</a>
+          <a onclick="showPage('platform')">Throughput Delta Diagnostics</a>
+          <a onclick="showPage('platform')">Signal-to-Action Auto-Synthesis</a>
+          <a onclick="showPage('platform')">Mobility Digital Twin</a>
+          <a onclick="showPage('platform')">Federated Mobility Logic Network</a>
+          <a onclick="showPage('platform')">Smart Alert Engine</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">Company</div>
+        <div class="footer-col">
+          <a onclick="showPage('about')">About AI Passenger Flow</a>
+          <a onclick="showPage('about')">Hardip Kaur · Founder & CEO</a>
+          <a onclick="showPage('process')">How It Works</a>
+          <a onclick="showPage('faq')">FAQ</a>
+          <a onclick="showPage('market')">Market Analysis</a>
+          <a onclick="showPage('pricing')">Pricing & Plans</a>
+          <a onclick="showPage('contact')">Request a Demo</a>
+          <a onclick="showPage('contact')">Pilot Programme</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">Solutions</div>
+        <div class="footer-col">
+          <a onclick="showPage('platform')">Regional Rail Stations</a>
+          <a onclick="showPage('platform')">Metropolitan Metro Systems</a>
+          <a onclick="showPage('platform')">Airport Terminals</a>
+          <a onclick="showPage('platform')">Multi-Site Infrastructure Groups</a>
+          <a onclick="showPage('pricing')">Starter · £100/mo</a>
+          <a onclick="showPage('pricing')">Professional · £300/mo</a>
+          <a onclick="showPage('pricing')">Enterprise · £500/mo</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom-bar">
+      <p>© 2026 <span>AI Passenger Flow & Service Optimization System</span> · London & Manchester, UK · UK GDPR Compliant · by Hardip Kaur</p>
+      <div class="footer-bottom-links">
+        <a onclick="showPage('contact')">Privacy Policy</a>
+        <a onclick="showPage('contact')">Terms of Service</a>
+        <a onclick="showPage('contact')">Confidential Business Plan</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+<!-- ═══════════ JAVASCRIPT ═══════════ -->
+<script>
+/* ─── PAGE NAV ───────────────────────────────── */
+function showPage(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-links button').forEach(b=>b.classList.remove('active'));
+  const pg=document.getElementById('page-'+name);
+  if(pg){pg.classList.add('active');}
+  const btn=document.getElementById('nav-'+name);
+  if(btn){btn.classList.add('active');}
+  window.scrollTo({top:0,behavior:'instant'});
+  if(name==='market'&&!window.marketChartsLoaded){initMarketCharts();window.marketChartsLoaded=true;}
+}
+
+function toggleCard(btn){
+  const card=btn.closest('.platform-card');
+  card.classList.toggle('open');
+  btn.innerHTML=card.classList.contains('open')?'Show Less':'Learn More';
+}
+
+function toggleFAQ(el){el.parentElement.classList.toggle('open');}
+
+function closeMobile(){
+  document.getElementById('mobileNav').classList.remove('open');
+  document.getElementById('hamburger').classList.remove('open');
+}
+
+document.getElementById('hamburger').addEventListener('click',function(){
+  this.classList.toggle('open');
+  document.getElementById('mobileNav').classList.toggle('open');
+});
+
+/* ─── CHART THEME ────────────────────────────── */
+const BLU='rgba(11,46,90,1)';
+const BLU2='rgba(11,46,90,0.7)';
+const BLU3='rgba(11,46,90,0.35)';
+const CYAN='rgba(0,180,216,0.85)';
+const CYAN2='rgba(144,224,239,0.7)';
+const GRID='rgba(11,46,90,0.07)';
+const MUTED='rgba(26,58,92,0.8)';
+
+Chart.defaults.font.family="'IBM Plex Mono', monospace";
+Chart.defaults.font.size=11;
+Chart.defaults.color=MUTED;
+
+/* ─── MARKET CHARTS ──────────────────────────── */
+function initMarketCharts(){
+  // UK Transport SAM by Segment
+  new Chart(document.getElementById('chartSector').getContext('2d'),{
+    type:'bar',
+    data:{
+      labels:['Regional Rail Stations','Metropolitan Metro','Airport Terminals','Multi-Site Operators'],
+      datasets:[{
+        label:'SAM (£ Millions)',
+        data:[140,95,75,85],
+        backgroundColor:[BLU,BLU2,BLU3,CYAN],
+        borderRadius:6,barPercentage:0.6
+      }]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:MUTED}},y:{grid:{color:GRID},ticks:{color:MUTED,callback:v=>'£'+v+'M'}}}}
+  });
+
+  // Pain Points Doughnut
+  new Chart(document.getElementById('chartRootCause').getContext('2d'),{
+    type:'doughnut',
+    data:{
+      labels:['Manual Monitoring Unsustainable (84%)','Capacity Gap Awareness Gap (78%)','No Predictive Flow Intelligence (86%)','Knowledge Loss Critical (72%)','No Machine-Executable Routing (95%)'],
+      datasets:[{
+        data:[84,78,86,72,95],
+        backgroundColor:[BLU,BLU2,BLU3,CYAN,CYAN2],
+        borderColor:['rgba(11,46,90,0.9)','rgba(11,46,90,0.7)','rgba(11,46,90,0.4)','rgba(0,180,216,0.8)','rgba(144,224,239,0.8)'],
+        borderWidth:1.5
+      }]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:MUTED,boxWidth:10,padding:10,font:{size:10}}}}}
+  });
+
+  // Radar Competitive
+  new Chart(document.getElementById('chartRadar').getContext('2d'),{
+    type:'radar',
+    data:{
+      labels:['Predictive Flow Intelligence','Transit DNA Fingerprinting','Throughput Delta Diagnostics','UK Infrastructure Benchmarks','FMLN Network Effect','ORR/CAA Compliance'],
+      datasets:[
+        {label:'AI Passenger Flow System',data:[5,5,5,5,5,5],backgroundColor:'rgba(0,180,216,0.1)',borderColor:CYAN,borderWidth:2,pointBackgroundColor:CYAN},
+        {label:'Legacy (Tracsis/SITA)',data:[2,1,1,1,1,2],backgroundColor:'rgba(11,46,90,0.06)',borderColor:BLU2,borderWidth:1.5,pointBackgroundColor:BLU2},
+        {label:'Niche Vision (Vivacity)',data:[1,1,2,1,1,1],backgroundColor:'rgba(11,46,90,0.04)',borderColor:'rgba(11,46,90,0.5)',borderWidth:1.5,pointBackgroundColor:'rgba(11,46,90,0.5)'},
+        {label:'Binary Sensors / Manual',data:[1,1,1,1,1,1],backgroundColor:'rgba(144,224,239,0.04)',borderColor:'rgba(144,224,239,0.5)',borderWidth:1.5,pointBackgroundColor:'rgba(144,224,239,0.5)'},
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:MUTED,boxWidth:10,padding:14,font:{size:10}}}},scales:{r:{backgroundColor:'rgba(0,180,216,0.02)',grid:{color:GRID},pointLabels:{color:MUTED,font:{size:10}},ticks:{display:false},min:0,max:5}}}
+  });
+
+  // Market Growth
+  new Chart(document.getElementById('chartGrowth').getContext('2d'),{
+    type:'bar',
+    data:{
+      labels:['2022','2023','2024','2025','2026','2027','2028','2030'],
+      datasets:[
+        {label:'Global AI Passenger Flow Market (USD B)',data:[6,8.4,10.1,12.5,16,22,30,48],backgroundColor:BLU2,borderRadius:5,barPercentage:0.55},
+        {type:'line',label:'UK FlowOps AI Adoption %',data:[null,3,6,10,19,30,44,65],borderColor:CYAN,borderWidth:2,yAxisID:'y2',tension:0.4,pointBackgroundColor:CYAN,fill:false}
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:MUTED,boxWidth:10,padding:12,font:{size:10}}}},scales:{x:{grid:{color:GRID},ticks:{color:MUTED}},y:{grid:{color:GRID},ticks:{color:MUTED,callback:v=>'$'+v+'B'}},y2:{position:'right',grid:{display:false},ticks:{color:MUTED,callback:v=>v+'%'}}}}
+  });
+}
+</script>
+</body>
+</html>
